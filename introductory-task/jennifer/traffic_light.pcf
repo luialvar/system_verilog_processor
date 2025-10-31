@@ -15,4 +15,3 @@ set_io -nowarn reset  10 # Map to the push button (far from the USB port)
 set_io -nowarn red    25
 set_io -nowarn yellow 18
 set_io -nowarn green  19
-set_io -nowarn tone_out  27
