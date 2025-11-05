@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) tinyVision.ai Inc
+#
+# See https://pico-ice.tinyvision.ai/pinout.html for the position
+# of the pins on the board.
+
+# Reference for PMOD names:
+# https://digilent.com/reference/pmod/start
+
+# Signals used by the default firmware
+set_io -nowarn clk    35 # Map to the 12 MHz clock pin
+set_io -nowarn reset  10 # Map to the push button (far from the USB port)
+
+# Map to general IO pins in the top right
+set_io -nowarn red    25
+set_io -nowarn yellow 18
+set_io -nowarn green  19
+set_io -nowarn tone  27
