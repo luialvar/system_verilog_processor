@@ -1,0 +1,5 @@
+# dfu-util
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="b1c0", MODE="0666"
+
+# program_sram.py
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="b1c0", MODE="0666"
