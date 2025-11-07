@@ -44,7 +44,6 @@ module pc_unit_tb ();
         // Add test cases
         //               res   intr pcflag jump    imm      target  ret    assert
         tests.push_back({1'b1, 1'b0, 1'b0, 2'b10, 16'(0), 16'd0, 16'd0, 16'(0)});
-        tests.push_back({1'b1, 1'b0, 1'b0, 2'b10, 16'(0), 16'd0, 16'd0, 16'(0)});  // reset
         tests.push_back({1'b0, 1'b0, 1'b0, 2'b00, 16'hABCD, 16'd0, 16'd0, 16'(0)});  // no pcflag
         tests.push_back({1'b0, 1'b0, 1'b1, 2'b10, 16'hABCD, 16'd0, 16'd0, 16'(4)});  // +4
         tests.push_back({1'b0, 1'b0, 1'b1, 2'b10, 16'hABCD, 16'd0, 16'd0, 16'(8)});
@@ -68,7 +67,6 @@ module pc_unit_tb ();
         while (tests.size > 0) begin
             test = tests.pop_front();
             #2;
-            #1;
             assert (pc_assert == pc_new)
             else
                 $error(
