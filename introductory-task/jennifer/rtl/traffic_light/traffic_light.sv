@@ -19,7 +19,7 @@ module traffic_light (
         .clk(clk), .reset(reset), .max(max_le_cycles), .div_clk(div_clk)
     );
     
-    div_clock #(.WIDTH(24)) speaker_clk (
+    div_clock #(.WIDTH(11)) speaker_clk (
         .clk(clk), .reset(reset), .max(max_sp_cycles), .div_clk(tone)
     );
 
@@ -67,23 +67,23 @@ module traffic_light (
         case(state_q)
             state_red: begin
                 max_le_cycles = 36000000; //append 000000, so 36000000 instead of 36
-                max_sp_cycles = 1363600;//, 440 Hz (12 MHz clock speed)
+                max_sp_cycles = 160; //13636, 440 Hz (12 MHz clock speed)
             end
             state_red_yellow: begin
                 max_le_cycles = 12000000;
-                max_sp_cycles = 1217000;//, 493 Hz
+                max_sp_cycles = 141; //12170, 493 Hz
             end
             state_green: begin
                 max_le_cycles = 36000000;
-                max_sp_cycles = 1147200;//, 523 Hz
+                max_sp_cycles = 114; //11472, 523 Hz
             end
             state_yellow: begin
                 max_le_cycles = 18000000;
-                max_sp_cycles = 1022100;//, 587 Hz
+                max_sp_cycles = 102; //10221, 587 Hz
             end
             default: begin
                 max_le_cycles = 36000000;
-                max_sp_cycles = 3636000;//, 440 Hz
+                max_sp_cycles = 160; //13636, 440 Hz
             end        
         endcase
     end

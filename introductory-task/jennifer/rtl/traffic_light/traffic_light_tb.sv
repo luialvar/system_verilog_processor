@@ -2,7 +2,7 @@ module traffic_light_tb();
     logic clk, reset;
     logic r, y, g;
     logic tone_out;
-    localparam integer cycles = 24;
+    localparam integer cycles = 24000;
 
     traffic_light dut (
         .clk(clk),
