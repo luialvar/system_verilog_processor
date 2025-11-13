@@ -3,11 +3,11 @@ module imm_gen (
     output logic [31:0] immediate
 );
 
-logic [4:0] comp;
-assign comp = iword[6:2];
+//logic [4:0] comp;
+//assign comp = iword[6:2];
 
 always_comb begin 
-    case (comp)
+    case (iword[6:2])
         5'b01000: begin //s
             immediate = {iword[31]? {21{1'b1}} : 21'b0, iword[30:25], iword[11:7]}; //or use 21'b111111111111111111111
         end 
