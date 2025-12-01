@@ -14,12 +14,12 @@ module regs (
 );
 
 logic [31:0] regs [31:0];
-logic [31:0] rout1;
-logic [31:0] rout2;
+logic [31:0] rout1 = 32'b0;
+logic [31:0] rout2 = 32'b0;
 
 always_ff @( posedge clk ) begin 
     if(reset) begin
-        rout2 <= 32'b0;
+        rout1 <= 32'b0;
         rout2 <= 32'b0;
     end else begin
         if(regwrite) begin

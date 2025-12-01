@@ -16,7 +16,7 @@ module cpu_tb ();
     );
 
     sram_sim #(
-        .INIT_FILE("fib.txt")
+        .INIT_FILE("../../asm/blinky/blinky.txt")
     ) sram (
         .sclk(sclk),
         .reset(reset),

@@ -6,7 +6,7 @@ module control (
     input logic        mem_valid,
 
     output logic [31:0] immediate,
-    output logic [ 5:0] control_flags,
+    output logic [ 5:0] control_flags, //[jump_flag, imm_flag, auipc, regwrite, memwrite, mem_phase]
     output logic        wbflag,
     output logic        memflag,  // I assume this is mem_flag (cpu_manual.pdf)
     output logic        pcflag,   // I assume this is pc_flag (cpu_manual.pdf)
@@ -20,21 +20,7 @@ module control (
     output logic csr_write
 );
 
-//copied from constants:
-localparam [6:0] OP_RTYPE = 7'b0110011;
-localparam [6:0] OP_ITYPE = 7'b0010011;
-localparam [6:0] OP_LUI = 7'b0110111;
-localparam [6:0] OP_AUIPC = 7'b0010111;
-localparam [6:0] OP_LW = 7'b0000011;
-localparam [6:0] OP_SW = 7'b0100011;
-localparam [6:0] OP_JALR = 7'b1100111;
-localparam [6:0] OP_JAL = 7'b1101111;
-localparam [6:0] OP_BRANCH = 7'b1100011;
-localparam [6:0] OP_MRET = 7'b1110011;
-localparam [6:0] OP_CSR = 7'b1110011;
-localparam [2:0] FUNCT3_MRET = 3'b000;
-localparam [2:0] FUNCT3_CSRW = 3'b001;
-localparam [2:0] FUNCT3_CSRR = 3'b010;
+`include "../constants.sv"
 
 imm_gen imm (.iword(iword), .immediate(immediate));
 
