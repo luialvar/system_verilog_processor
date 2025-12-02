@@ -33,7 +33,7 @@ logic [31:0] rs2;           //o, d
 
 //pc_unit:
 logic [ 1:0] jump_pc;       //i, d-mux
-logic [15:0] imm_pc;        //i, e-mux
+logic [15:0] imm_pc;        //i, e-mux  
 logic [15:0] pc_new;        //o
 logic pc_misaligned;        //o
 
@@ -160,7 +160,7 @@ csr csr (
     .addr(iword[31:20]), //csr part of instruction, csr-reg address
     .write_en(csr_write),
     .data_out(csr_data_out),
-    .pc(new_pc),
+    .pc(pc_new),
     .isr_return(isr_return),
     .isr_target(isr_target)
     );
@@ -193,20 +193,23 @@ assign imm_pc = (iword[6:0] == 7'b1100111) ? rd_alu[15:0] : immediate;    //e-mu
 assign memwrite = memflag ? control_flags[1] : 1'b0;            //f-mux
 
 always_comb begin                                               //rd-mux, data to be written to regs
-    case({control_flags[0], csr_write, control_flags[5]})       //mem_phase, csr_write, jump. Only one signal should be 1 at any given time
-        3'b100: rd_r = mem_dataout;
-        3'b010: rd_r = csr_data_out;
-        3'b001: begin
-            //$display("jump");
-            case(iword[6:0])   //only for jal and jalr
-                7'b1101111, 7'b1100111: rd_r = pc_new + 4;
-                default: rd_r = rd_alu; 
-            endcase
-        end
-        default: rd_r = rd_alu;
-    endcase
+    if(iword[6:0] == 7'b1110011 && iword[14:12] == 3'b010) begin  //if csr_read instruction, store output of csr_data_out in rd_r
+        rd_r = csr_data_out;
+    end else begin
+        case({control_flags[0], control_flags[5]})       //mem_phase,  jump. Only one signal should be 1 at any given time
+            2'b10: rd_r = mem_dataout;
+            2'b01: begin
+                //$display("jump");
+                case(iword[6:0])   //only for jal and jalr
+                    7'b1101111, 7'b1100111: rd_r = pc_new + 4;
+                    default: rd_r = rd_alu; 
+                endcase
+            end
+            default: rd_r = rd_alu;
+        endcase
+    end
 end
 
-assign exception = {load_access_fault, illegal_instruction, pc_misaligned};   //i // [2:load access fault; 1: illegal instruction; 0: misaligned pc]
+assign exceptions = {load_access_fault, illegal_instruction, pc_misaligned};   //i // [2:load access fault; 1: illegal instruction; 0: misaligned pc]
 
 endmodule  // cpu

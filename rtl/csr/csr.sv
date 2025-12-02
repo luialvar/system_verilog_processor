@@ -73,11 +73,12 @@ always_ff @( posedge clk ) begin
                 mstatus[3] <= 1'b0; //disable interrupts
                 if(mip[11]) mip[11] <= 1'b0;
                 mepc <= pc;
+
             end else if(mret) begin //return from isr
-                mstatus[3] <= 1'b1; //enable interrupts
+                mstatus[3] <= 1'b1; //enable interrupts, what if interrupts were disabled prior to returning?
             end
 
-            if(mstatus[3]) begin
+            //if(mstatus[3]) begin
                 if(mip[11] && mie[11]) begin            //in mie: MEIE, machine external interrupt enable
                     mcause <= {1'b1, 27'b0, 4'b1011};   //d'11
                 end else if(mip[7] && mie[7]) begin     //in mie: MTIE, machine timer interrupt enable
@@ -88,8 +89,8 @@ always_ff @( posedge clk ) begin
                     mcause <= 32'b0;                    //d'0
                 end else if(exceptions[2]) begin        //load access fault
                     mcause <= {29'b0, 3'b101};          //d'5
-                end
-            end
+                end 
+            //end
         end
     end
 end
