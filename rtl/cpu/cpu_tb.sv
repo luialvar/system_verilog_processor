@@ -14,9 +14,12 @@ module cpu_tb ();
         .sram_ce(sram_ce),
         .intr_ext(intr_ext)
     );
+    
 
     sram_sim #(
-        .INIT_FILE("../../asm/exceptions_test/exceptions_test.txt")
+        //.INIT_FILE("./subprogram.txt")
+        //.INIT_FILE("../../asm/exceptions_test/exceptions_test.txt")
+        .INIT_FILE("../../asm/uart_test/uart_test.txt")
     ) sram (
         .sclk(sclk),
         .reset(reset),

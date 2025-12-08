@@ -184,13 +184,14 @@ assign b = control_flags[4] ? immediate : rs2;                  //b-mux, imm_fla
 assign mem_addr = memflag ? rd_alu : {16'b0, pc_new[15:0]};     //c-mux
 always_comb begin                                               //d-mux, controlle mret (11) and control_flags[5], otherwise increment by 4 (10)
     if(control_flags[5]) begin
-        jump_pc = rd_alu[17:16];
-    end else begin
+        jump_pc = rd_alu[17:16];                                //jalr 2'b00, direct 2'b01
+    end else begin  
         jump_pc = mret ? 2'b11 : 2'b10;                         //mret 2'b11, jump to isr_return, 2'b10: normal increment
     end
 end 
-assign imm_pc = (iword[6:0] == 7'b1100111) ? rd_alu[15:0] : immediate;    //e-mux, jump_flag, not sure if this is the correct one
+assign imm_pc = (iword[6:0] == 7'b1100111) ? rd_alu[15:0] : immediate;    //e-mux, jalr uses rd_alu, to compute rs1+imm, lsb always set to 0 by alu unit, not sure if this is the correct one
 assign memwrite = memflag ? control_flags[1] : 1'b0;            //f-mux
+
 
 always_comb begin                                               //rd-mux, data to be written to regs
     if(iword[6:0] == 7'b1110011 && iword[14:12] == 3'b010) begin  //if csr_read instruction, store output of csr_data_out in rd_r

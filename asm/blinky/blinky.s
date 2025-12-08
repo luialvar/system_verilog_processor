@@ -13,9 +13,8 @@ _start:
     sw x0, 3(x13) # Set mtimecmph 0
 
     li x1, 12000000
-    li x1, 1000000 #added
     # li x1, 0x1000 #better suited for simulation
-    # sw x1, 2(x13) # Set mtimecmp 0x1000
+    sw x1, 2(x13) # Set mtimecmp 0x1000
 
     li x13, 128
     csrw mie, x13 # Only enable timer interrupts
@@ -23,6 +22,7 @@ _start:
     li x13, 8
     csrw mstatus, x13 # Enable interrupts in general
 
+    #li x13, 197
     li x13, 0x01000000 # GPIO Out
     li x14, 0x01000006 # mtime
     li x12, 0 # LED status
