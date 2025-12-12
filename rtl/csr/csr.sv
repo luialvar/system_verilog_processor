@@ -28,6 +28,8 @@ localparam [11:0] addr_mip      = 12'h344; //machine interrupt pending
 localparam [11:0] addr_mtvec    = 12'h305; //machine trap-vector base-addres
 localparam [11:0] addr_mepc     = 12'h341; //machine exception program counter
 
+logic mie_state; //maybe necessary
+
 logic [31:0] mstatus = 32'b0, mcause = 32'b0, mie = 32'b0, mip = 32'b0, mtvec = 32'b0, mepc = 32'b0;
 always_comb begin //data_out is always set to the register specified by addr
     case(addr)
@@ -48,6 +50,7 @@ always_comb begin //data_out is always set to the register specified by addr
     if(mcause[31]) isr_target += (mcause << 2);
 
     isr_return = mepc;
+
 end
 
 always_ff @( posedge clk ) begin 
@@ -69,15 +72,17 @@ always_ff @( posedge clk ) begin
             if(intr_ext) mip[11] <= 1'b1;
             mip[7] <= intr_timer;
 
-            if(enter_isr) begin
+            if(enter_isr) begin //&& mstatus[3]) begin //not sure if we have to check for interrupts enable here, testbench doesn't clarify either
                 mstatus[3] <= 1'b0; //disable interrupts
+                mie_state <= mstatus[3];
                 if(mip[11]) mip[11] <= 1'b0;
                 mepc <= pc;
+
             end else if(mret) begin //return from isr
-                mstatus[3] <= 1'b1; //enable interrupts
+                mstatus[3] <= mie_state; //enable interrupts, what if interrupts were disabled prior to returning?
             end
 
-            if(mstatus[3]) begin
+            //if(enter_isr) begin
                 if(mip[11] && mie[11]) begin            //in mie: MEIE, machine external interrupt enable
                     mcause <= {1'b1, 27'b0, 4'b1011};   //d'11
                 end else if(mip[7] && mie[7]) begin     //in mie: MTIE, machine timer interrupt enable
@@ -88,8 +93,8 @@ always_ff @( posedge clk ) begin
                     mcause <= 32'b0;                    //d'0
                 end else if(exceptions[2]) begin        //load access fault
                     mcause <= {29'b0, 3'b101};          //d'5
-                end
-            end
+                end 
+            //end
         end
     end
 end
