@@ -17,8 +17,7 @@ clean:
 # Proper targets
 # ==========================
 %.o: %.s
-	clang --target=riscv32 --print-supported-cpus -march=rv32im -o $@ -c $<
-#	clang --target=riscv32 -march=rv32im -o $@ -c $<
+	clang --target=riscv32 -march=rv32im -o $@ -c $<
 
 $(FILE).tmp: $(OBJS)
 	ld.lld -T ../hwp_tinyrv2.ld -o $(FILE).tmp $(OBJS)
