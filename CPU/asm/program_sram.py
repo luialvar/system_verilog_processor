@@ -2,6 +2,7 @@
 
 import sys
 import serial
+import time
 from tqdm import tqdm
 
 if __name__ == "__main__":
@@ -17,7 +18,7 @@ if __name__ == "__main__":
             instruction = f.read(4)
 
     address = 0
-    with serial.Serial(port) as ser:
+    with serial.Serial(port, baudrate = 9600) as ser:
         print("Programming SRAM...")
 
         # Start programming mode with 0x02
@@ -26,6 +27,7 @@ if __name__ == "__main__":
             ser.write(address.to_bytes(4))
             ser.write(line)
             address += 4
+            time.sleep(0.01)
 
         # Send ending sequence
         ser.write(END)

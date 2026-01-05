@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := assemble
 .PHONY: assemble readable clean
 
-PORT = /dev/ttyACM0
+PORT = /dev/tty.usbmodem101
 
 # Interactive targets
 # ==========================
@@ -17,13 +17,13 @@ clean:
 # Proper targets
 # ==========================
 %.o: %.s
-	clang --target=riscv32 -march=rv32im -o $@ -c $<
+	/opt/homebrew/bin/riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32e -o $@ -c $<
 
 $(FILE).tmp: $(OBJS)
-	ld.lld -T ../hwp_tinyrv2.ld -o $(FILE).tmp $(OBJS)
+	/opt/homebrew/bin/riscv64-unknown-elf-ld -T ../hwp_tinyrv2.ld -o $(FILE).tmp $(OBJS)
 
 $(FILE).bin: $(FILE).tmp
-	llvm-objcopy -O binary $(FILE).tmp --set-start 0 $(FILE).bin
+	/opt/homebrew/bin/riscv64-unknown-elf-objcopy -O binary $(FILE).tmp --set-start 0 $(FILE).bin
 
 $(FILE).txt: $(FILE).bin
 	hexdump -v -e '1/1 " %02X" "\n"' $(FILE).bin | sed 's/ //g' > $(FILE).txt
