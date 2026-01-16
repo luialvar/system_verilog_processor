@@ -4,6 +4,7 @@ module control (
     input logic [31:0] iword,
     input logic        mem_busy,
     input logic        mem_valid,
+    input logic        alu_busy,
 
     output logic [31:0] immediate,
     output logic [ 5:0] control_flags,
@@ -22,6 +23,8 @@ module control (
 
     `include "../constants.sv"
 
+    logic muldiv;
+
     enum {RST,FE_A,FE,ID,EX,MEM_A,MEM,WB,INTR} state_d, state_q;
 
     imm_gen imm_gen(.iword(iword), .immediate(immediate));
@@ -36,6 +39,8 @@ module control (
     end
 
     always_comb begin
+        muldiv = 0;
+        if (iword[6:0] == OP_RTYPE & iword[31:25] == 7'b0000001) muldiv = 1;
         case (iword[6:0])
             OP_LW, OP_SW    :   control_flags[0] = 1;
             default         :   control_flags[0] = 0;
@@ -108,6 +113,7 @@ module control (
             EX      :
                 begin
                     if (exceptions[1]) state_d = INTR;
+                    else if (alu_busy) state_d = EX;
                     else if (control_flags[0]) state_d = MEM_A;
                     else state_d = WB;
                 end
@@ -135,7 +141,7 @@ module control (
                     pcflag = 1;
                     if (interrupt_pending) state_d = INTR;
                     else state_d = FE_A;
-                    if (control_flags[2]) wbflag = 1;
+                    if (control_flags[2] | muldiv) wbflag = 1;
                     else if (iword[6:0] == OP_CSR & iword[14:12] == 001) csr_write = 1;
                     else if (iword[6:0] == OP_CSR & iword[14:12] == 000) mret = 1;
                 end

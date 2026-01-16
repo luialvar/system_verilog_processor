@@ -16,7 +16,7 @@ module cpu_tb ();
     );
 
     sram_sim #(
-        .INIT_FILE("fib.txt")
+        .INIT_FILE("M_Extension_test.txt")
     ) sram (
         .sclk(sclk),
         .reset(reset),

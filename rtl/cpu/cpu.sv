@@ -43,6 +43,7 @@ logic [31:0] b;             //i, b-mux
 logic [16:0] instruction;   //i, driven from iword. Holds only the func7, func3 and opcode part
 logic [31:0] rd;            //o, drives register rd_alu
 logic illegal_instruction;  //o
+logic alu_busy;
 
 //memory:
 logic [31:0] mem_addr;      //i, c-mux    
@@ -100,8 +101,11 @@ alu alu (
     .a(a),                  //a-mux
     .b(b),                  //b-mux
     .instruction(instruction),
+    .clk(clk),
+    .reset(inv_reset),
     .rd(rd),
-    .illegal_instruction(illegal_instruction)
+    .illegal_instruction(illegal_instruction),
+    .alu_busy(alu_busy)
     );
 
 memory memory (
@@ -133,6 +137,7 @@ control control (
     .iword(iword),
     .mem_busy(busy),  //lines mixed up in the diagram?
     .mem_valid(valid),
+    .alu_busy(alu_busy),
     .immediate(immediate),
     .control_flags(control_flags),
     .wbflag(wbflag),
