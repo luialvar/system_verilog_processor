@@ -13,6 +13,7 @@ module control (
     output logic        pcflag,
     output logic        fetchflag,
     output logic        mem_ce,
+    output logic        reset_alu,
 
     input logic interrupt_pending,
     input logic [2:0] exceptions,
@@ -108,12 +109,18 @@ module control (
                         state_d = state_q;
                     end
                     mem_ce = 0;
+
+                    reset_alu = 1;
                 end
-            ID      :   state_d = EX;
+            ID      :   
+                begin
+                    state_d = EX;
+                end
             EX      :
                 begin
+                    reset_alu = 0;
                     if (exceptions[1]) state_d = INTR;
-                    else if (alu_busy) state_d = EX;
+                    else if (alu_busy) state_d = state_q;
                     else if (control_flags[0]) state_d = MEM_A;
                     else state_d = WB;
                 end

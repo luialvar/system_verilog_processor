@@ -4,6 +4,7 @@ module alu (
     input logic [16:0] instruction,     // [16:10] func7, [9:7] func3, [6:0] opcode
     input logic clk,
     input logic reset,
+    input logic reset_alu,
 
     output logic [31:0] rd,
     output logic illegal_instruction,
@@ -25,10 +26,10 @@ logic [5:0] counter_q, counter_d;
 logic signed_q, signed_d;
 logic isrem_q, isrem_d;
 
-enum {NO_DIV, START, FIN} state_q, state_d;
+enum {NO_DIV, INIT_DIV, START, FIN_A, FIN} state_q, state_d;
 
 always_ff @(posedge clk) begin
-    if (reset) begin
+    if (reset | reset_alu) begin
         state_q <= NO_DIV;
         dividend_q <= 0;
         divisor_q <= 0;
@@ -67,6 +68,15 @@ always_comb begin
     case(state_q)
         NO_DIV: begin
             if (start_div) begin
+                state_d = INIT_DIV;
+            end
+        end
+        INIT_DIV:   begin
+            if(b == 32'b0) begin
+                rd_div_d = 32'b1;
+                state_d = NO_DIV;
+            end
+            else begin
                 isrem_d = is_rem;
                 signed_d = is_signed;
                 dividend_d = is_signed ? $signed(a) : $unsigned(a);
@@ -88,16 +98,20 @@ always_comb begin
                 quotient_d = {quotient_q[30:0], 1'b0};
             end
             if (counter_q == 1) begin
-                state_d   = FIN;
+                state_d   = FIN_A;
                 counter_d = 0;
             end else begin
                 counter_d = counter_q - 1;
             end
 
         end
-        FIN: begin
+        FIN_A: begin
+            state_d = FIN;
             rd_div_d = isrem_q ? remainder_q : quotient_q;
+        end
+        FIN: begin
             state_d = NO_DIV;
+            alu_busy = 0;
         end
     endcase
 end
@@ -147,6 +161,7 @@ always_comb begin
                             start_div = 1;
                             is_signed = 1;
                             is_rem = 0;
+                            alu_busy = 1;
                         end
                         default: illegal_instruction = 1;
                     endcase
@@ -251,7 +266,7 @@ always_comb begin
     endcase
 end
 
-assign alu_busy = (state_q != NO_DIV);
+//assign alu_busy = (state_q != NO_DIV);
 
 always_comb begin
     if (start_div) rd = rd_div_q;

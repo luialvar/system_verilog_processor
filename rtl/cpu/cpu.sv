@@ -44,6 +44,7 @@ logic [16:0] instruction;   //i, driven from iword. Holds only the func7, func3 
 logic [31:0] rd;            //o, drives register rd_alu
 logic illegal_instruction;  //o
 logic alu_busy;
+logic reset_alu;
 
 //memory:
 logic [31:0] mem_addr;      //i, c-mux    
@@ -103,6 +104,7 @@ alu alu (
     .instruction(instruction),
     .clk(clk),
     .reset(inv_reset),
+    .reset_alu(reset_alu),
     .rd(rd),
     .illegal_instruction(illegal_instruction),
     .alu_busy(alu_busy)
@@ -145,6 +147,7 @@ control control (
     .pcflag(pcflag),
     .fetchflag(fetchflag),
     .mem_ce(mem_ce),
+    .reset_alu(reset_alu),
     .interrupt_pending(interrupt_pending),
     .exceptions(exceptions), //exceptions
     .jump_to_isr(jump_to_isr),
