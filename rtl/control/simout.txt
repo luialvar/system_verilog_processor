@@ -1,0 +1,5 @@
+iverilog -g2012 -o test_pre ../imm_gen/imm_gen.sv ../constants.sv control.sv control_tb.sv
+vvp test_pre
+VCD info: dumpfile control.vcd opened for output.
+[32mTestbench finished running[0m
+control_tb.sv:605: $finish called at 3655000 (1ps)

@@ -5,6 +5,8 @@ module cpu_tb ();
     logic rst_n;
     logic intr_ext;
 
+    int period = 2;
+
     cpu dut (
         .clk(clk),
         .reset(rst_n),
@@ -38,7 +40,7 @@ module cpu_tb ();
         forever #1 clk = ~clk;
     end
 
-    logic [7:0] memory_content [200];
+    /*logic [7:0] memory_content [200];
     generate
         genvar i;
         for(i = 0; i < 200; i = i+1) begin
@@ -57,7 +59,7 @@ module cpu_tb ();
         for(i = 0; i < 128; i = i+1) begin
             assign i_cache_content[i] = dut.memory.sram_master.i_cache[i];
         end
-    endgenerate
+    endgenerate*/
 
     initial begin
         $dumpfile("cpu.vcd");
@@ -67,18 +69,23 @@ module cpu_tb ();
         // and registers
         // for (int i = 0; i < 32; i++) $dumpvars(0, dut.regs.registers[i]);
 
-        for (int i = 0; i < 200; i++) $dumpvars(1, memory_content[i]);
-        for (int i = 0; i < 128; i++) $dumpvars(1, d_cache_content[i]);
-        for (int i = 0; i < 128; i++) $dumpvars(1, i_cache_content[i]);
-        $dumpvars(1, sram.mem[16777212]);
-        $dumpvars(1, sram.mem[16777208]);
+        //for (int i = 0; i < 200; i++) $dumpvars(1, memory_content[i]);
+        //for (int i = 0; i < 128; i++) $dumpvars(1, d_cache_content[i]);
+        //for (int i = 0; i < 128; i++) $dumpvars(1, i_cache_content[i]);
+        //$dumpvars(1, sram.mem[16777212]);  //last usable addresses
+        //$dumpvars(1, sram.mem[16777208]);
 
         #20;
         reset = 0;
         rst_n = 1;
         #20000
         //#100000;
-        #1000000; //looong simulation
+        //#1000000; //looong simulation
+        #500000;
+        //rst_n = 1'b0;  // reset during execution
+        //#10;
+        //rst_n = 1'b1;
+        #500000;
         $display("\033[32mTestbench finished running! Verify with the waveform\033[0m");
         $finish;
     end

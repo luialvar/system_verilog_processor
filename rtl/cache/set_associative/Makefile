@@ -3,7 +3,7 @@ FILE=cache_set_associative
 TARGET=synth_ice40
 #MODULES_SIM = ../imm_gen/imm_gen.sv# ../constants.sv
 #MODULES_SYNTH = $(MODULES_SIM)
-MODULES_SYNTH = ../../constants.sv ../../cpu/spi_master.sv ./replacement_policy/plru_m.sv ./cache_way/cache_way.sv
+MODULES_SYNTH = ../../constants.sv ../../cpu/spi_master.sv ./replacement_policy/plru_m.sv ./replacement_policy/fifo.sv ./cache_way/cache_way.sv
 MODULES_SIM = $(MODULES_SYNTH) ../../cpu/sram_sim.sv
 
 include ../../Makefile.inc

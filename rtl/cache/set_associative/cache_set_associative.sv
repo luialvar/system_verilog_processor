@@ -1,4 +1,5 @@
 /*
+* This is somewhat of a mess
 * module replaces spi_master
 * address: [23 .tag. 9|8 .set. 5|4 .offset. 2|1 .bytes. 0]
 *          [   15     |     4   |     3      |     2     ]
@@ -26,6 +27,7 @@ module cache_set_associative (
     input logic iread,   //instruction-word load, only caching iwords
     input logic idle     //true, when cache is not in use
 );
+localparam replacement_policy = 1;
 
 localparam set_end = 8;
 localparam set_start = 5;
@@ -62,24 +64,26 @@ logic hit;                        //indicating whether a hit occured
 logic i_hit;
 logic d_hit;
 logic [31:0] data_hit = 0;        //the data from the way that was hit
+logic [way_bits - 1:0] way_hit = 0;
 
 logic [1:0] enable[ways - 1:0];
 
 logic valid_flag; //used to set the valid bit in the cache
-logic cache_write;
+logic [1:0] cache_write_mode;
 
 // replacement_policy
+logic cache_replace_flag; // high when cache line is replaced
 logic i_hit_flag = 0;
 logic d_hit_flag = 0;
 logic [way_bits - 1:0] way_replace;
 logic [way_bits - 1:0] i_way_replace;
 logic [way_bits - 1:0] d_way_replace;
-logic [way_bits - 1:0] way_hit = 0;
+logic [way_bits - 1:0] way_hit_replace = 0;
 logic i_rep_finished;
 logic d_rep_finished;
-//logic rep_finished;
 
 plru_m #(
+//fifo #(
     .ways(ways),
     .way_bits(way_bits),
     .sets(sets),
@@ -88,13 +92,15 @@ plru_m #(
     .clk(clk),
     .reset(reset),
     .hit(i_hit_flag),            //set high to mark way "way_hit" as hit
+    .replace(cache_replace_flag),
     .set(addr[set_end:set_start]),
-    .way_hit(way_hit),
+    .way_hit(way_hit_replace),
     .way_replace(i_way_replace), //output
     .finished(i_rep_finished)     //output
 );
 
 plru_m #(
+//fifo #(
     .ways(ways),
     .way_bits(way_bits),
     .sets(sets),
@@ -103,8 +109,9 @@ plru_m #(
     .clk(clk),
     .reset(reset),
     .hit(d_hit_flag),            //set high to mark way "way_hit" as hit
+    .replace(cache_replace_flag),
     .set(addr[set_end:set_start]),
-    .way_hit(way_hit),
+    .way_hit(way_hit_replace),
     .way_replace(d_way_replace), //output
     .finished(d_rep_finished)     //output
 );
@@ -202,11 +209,13 @@ always_comb begin
     end 
     offset = addr[offset_end:offset_start];
 
-    cache_write = 1'b0;
+    cache_write_mode = 2'b00; //default to read
     busy = 1'b1;
     valid = 1'b0;
     sram_reset = 1'b1; //reset sram on IDLE, COMPARE, READ_OUT, VALID, FAULT, enable otherwise
     valid_flag = 1'b0;
+    cache_replace_flag = 1'b0;
+    way_hit_replace = way_hit;
 
     //replacement policy
     i_hit_flag = 1'b0;
@@ -216,7 +225,7 @@ always_comb begin
             //enable all ways to load and compare the data for the current set
             if(!(idle || unaligned)) begin
                 for(int i = 0; i < ways; i++) begin
-                    enable[i] = {~iread, iread};  //d, i
+                    enable[i] = 2'b11; //{~iread, iread};  //d, i
                 end 
             end
 
@@ -236,28 +245,31 @@ always_comb begin
         end
         LOAD: begin
             if(!sram_busy && sram_valid) begin
-                //overwrite data in the way that should be replaced next
-                cache_write = 1'b1;
+                //overwrite data in the way that should be replaced next and update tag/valid
+                cache_write_mode = 2'b01;
                 enable[way_replace] = {~iread, iread};
             end
             offset = count;
-            valid_flag = 1'b1;  //set valid bit in cache line to true
             sram_reset = 1'b0;
         end
         LOAD_RESET: begin
             if(count == 0) begin
                 //update replacement policy
+                valid_flag = 1'b1;  //set valid bit in cache line to true
+                cache_write_mode = 2'b10;
+                cache_replace_flag = 1'b1;
                 i_hit_flag = iread;
                 d_hit_flag = ~iread;
+                way_hit_replace = way_replace;
 
                 //enable cache once more to read out data before jumping to valid (offset is either equal to count or the actual offset)
-                enable[way_hit] = {~iread, iread};
+                enable[way_replace] = {~iread, iread};
             end
         end
         WRITE_AWAIT: begin
             if(sram_busy) begin
-                //write word to cache if hit
-                cache_write = 1'b1;
+                //write word to cache if hit, don't update tag/valid
+                cache_write_mode = 2'b01;
                 if(i_hit || d_hit) begin
                     enable[way_hit] = vec_hit[way_hit];
                 end
@@ -297,9 +309,9 @@ always_comb begin
         d_hit |= vec_hit[i][1];
 
 
-        if(vec_hit[i][1] || vec_hit[i][0]) begin
-            data_hit = vec_data_out[i];            
-            way_hit = i[way_bits - 1:0];
+        if((vec_hit[i][1] && ~iread) || (vec_hit[i][0] && iread)) begin //only interested in the one-hot vector from either iread or dataread, not both
+            data_hit |= vec_data_out[i];            
+            way_hit |= i[way_bits - 1:0];
         end
         //way_hit |= i[way_bits - 1:0] && {(way_bits){vec_hit[i][1] || vec_hit[i][0]}};
         //data_hit |= {(32){(vec_hit[i][1] || vec_hit[i][0])}} && vec_data_out[i];
@@ -317,7 +329,8 @@ generate
             .clk(clk),
             .reset(reset),
             .enable(enable[t]),
-            .write(cache_write),
+            .mode(cache_write_mode),
+            .iread(iread),
             .tag(addr[23:set_end + 1]),
             .set(addr[set_end:set_start]),
             .offset(offset),

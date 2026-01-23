@@ -1,0 +1,165 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Tue Nov 25 16:18:53 2025
+[*]
+[dumpfile] "/mnt/c/Users/Jennifer/Studium/Uni_Würzburg/5.Semester/HWP_II/professor-frink/rtl/cpu/cpu.vcd"
+[dumpfile_mtime] "Tue Nov 25 16:18:46 2025"
+[dumpfile_size] 4354293
+[savefile] "/mnt/c/Users/Jennifer/Studium/Uni_Würzburg/5.Semester/HWP_II/professor-frink/rtl/cpu/asdf.gtkw"
+[timestart] 4682
+[size] 1920 985
+[pos] -1 -1
+*-7.754039 5281 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] cpu_tb.
+[treeopen] cpu_tb.dut.
+[sst_width] 297
+[signals_width] 442
+[sst_expanded] 1
+[sst_vpaned_height] 293
+@420
+cpu_tb.dut.control.state_q
+@28
+cpu_tb.dut.control.clk
+cpu_tb.dut.control.reset
+cpu_tb.dut.control.mem_ce
+cpu_tb.dut.control.mem_busy
+@c00028
+cpu_tb.dut.mem_dataout[31:0]
+@28
+(0)cpu_tb.dut.mem_dataout[31:0]
+(1)cpu_tb.dut.mem_dataout[31:0]
+(2)cpu_tb.dut.mem_dataout[31:0]
+(3)cpu_tb.dut.mem_dataout[31:0]
+(4)cpu_tb.dut.mem_dataout[31:0]
+(5)cpu_tb.dut.mem_dataout[31:0]
+(6)cpu_tb.dut.mem_dataout[31:0]
+(7)cpu_tb.dut.mem_dataout[31:0]
+(8)cpu_tb.dut.mem_dataout[31:0]
+(9)cpu_tb.dut.mem_dataout[31:0]
+(10)cpu_tb.dut.mem_dataout[31:0]
+(11)cpu_tb.dut.mem_dataout[31:0]
+(12)cpu_tb.dut.mem_dataout[31:0]
+(13)cpu_tb.dut.mem_dataout[31:0]
+(14)cpu_tb.dut.mem_dataout[31:0]
+(15)cpu_tb.dut.mem_dataout[31:0]
+(16)cpu_tb.dut.mem_dataout[31:0]
+(17)cpu_tb.dut.mem_dataout[31:0]
+(18)cpu_tb.dut.mem_dataout[31:0]
+(19)cpu_tb.dut.mem_dataout[31:0]
+(20)cpu_tb.dut.mem_dataout[31:0]
+(21)cpu_tb.dut.mem_dataout[31:0]
+(22)cpu_tb.dut.mem_dataout[31:0]
+(23)cpu_tb.dut.mem_dataout[31:0]
+(24)cpu_tb.dut.mem_dataout[31:0]
+(25)cpu_tb.dut.mem_dataout[31:0]
+(26)cpu_tb.dut.mem_dataout[31:0]
+(27)cpu_tb.dut.mem_dataout[31:0]
+(28)cpu_tb.dut.mem_dataout[31:0]
+(29)cpu_tb.dut.mem_dataout[31:0]
+(30)cpu_tb.dut.mem_dataout[31:0]
+(31)cpu_tb.dut.mem_dataout[31:0]
+@1401200
+-group_end
+@c00028
+cpu_tb.dut.iword[31:0]
+@28
+(0)cpu_tb.dut.iword[31:0]
+(1)cpu_tb.dut.iword[31:0]
+(2)cpu_tb.dut.iword[31:0]
+(3)cpu_tb.dut.iword[31:0]
+(4)cpu_tb.dut.iword[31:0]
+(5)cpu_tb.dut.iword[31:0]
+(6)cpu_tb.dut.iword[31:0]
+(7)cpu_tb.dut.iword[31:0]
+(8)cpu_tb.dut.iword[31:0]
+(9)cpu_tb.dut.iword[31:0]
+(10)cpu_tb.dut.iword[31:0]
+(11)cpu_tb.dut.iword[31:0]
+(12)cpu_tb.dut.iword[31:0]
+(13)cpu_tb.dut.iword[31:0]
+(14)cpu_tb.dut.iword[31:0]
+(15)cpu_tb.dut.iword[31:0]
+(16)cpu_tb.dut.iword[31:0]
+(17)cpu_tb.dut.iword[31:0]
+(18)cpu_tb.dut.iword[31:0]
+(19)cpu_tb.dut.iword[31:0]
+(20)cpu_tb.dut.iword[31:0]
+(21)cpu_tb.dut.iword[31:0]
+(22)cpu_tb.dut.iword[31:0]
+(23)cpu_tb.dut.iword[31:0]
+(24)cpu_tb.dut.iword[31:0]
+(25)cpu_tb.dut.iword[31:0]
+(26)cpu_tb.dut.iword[31:0]
+(27)cpu_tb.dut.iword[31:0]
+(28)cpu_tb.dut.iword[31:0]
+(29)cpu_tb.dut.iword[31:0]
+(30)cpu_tb.dut.iword[31:0]
+(31)cpu_tb.dut.iword[31:0]
+@1401200
+-group_end
+@24
+cpu_tb.dut.pc_unit.pc_new[15:0]
+@420
+cpu_tb.dut.control.imm.immediate[31:0]
+@28
+cpu_tb.dut.control.control_flags[5:0]
+@24
+cpu_tb.dut.rd[31:0]
+cpu_tb.dut.rd_r[31:0]
+cpu_tb.dut.rd_alu[31:0]
+cpu_tb.dut.a[31:0]
+cpu_tb.dut.b[31:0]
+@28
+cpu_tb.dut.regs.regwrite
+@24
+cpu_tb.dut.regs.rs1adr[4:0]
+cpu_tb.dut.regs.rs1[31:0]
+cpu_tb.dut.regs.rs2adr[4:0]
+cpu_tb.dut.regs.rs2[31:0]
+cpu_tb.dut.regs.rdadr[4:0]
+cpu_tb.dut.regs.rd[31:0]
+@28
+cpu_tb.dut.csr.mtvec[31:0]
+cpu_tb.dut.csr.mstatus[31:0]
+cpu_tb.dut.csr.mcause[31:0]
+@c00028
+cpu_tb.dut.csr.mip[31:0]
+@28
+(0)cpu_tb.dut.csr.mip[31:0]
+(1)cpu_tb.dut.csr.mip[31:0]
+(2)cpu_tb.dut.csr.mip[31:0]
+(3)cpu_tb.dut.csr.mip[31:0]
+(4)cpu_tb.dut.csr.mip[31:0]
+(5)cpu_tb.dut.csr.mip[31:0]
+(6)cpu_tb.dut.csr.mip[31:0]
+(7)cpu_tb.dut.csr.mip[31:0]
+(8)cpu_tb.dut.csr.mip[31:0]
+(9)cpu_tb.dut.csr.mip[31:0]
+(10)cpu_tb.dut.csr.mip[31:0]
+(11)cpu_tb.dut.csr.mip[31:0]
+(12)cpu_tb.dut.csr.mip[31:0]
+(13)cpu_tb.dut.csr.mip[31:0]
+(14)cpu_tb.dut.csr.mip[31:0]
+(15)cpu_tb.dut.csr.mip[31:0]
+(16)cpu_tb.dut.csr.mip[31:0]
+(17)cpu_tb.dut.csr.mip[31:0]
+(18)cpu_tb.dut.csr.mip[31:0]
+(19)cpu_tb.dut.csr.mip[31:0]
+(20)cpu_tb.dut.csr.mip[31:0]
+(21)cpu_tb.dut.csr.mip[31:0]
+(22)cpu_tb.dut.csr.mip[31:0]
+(23)cpu_tb.dut.csr.mip[31:0]
+(24)cpu_tb.dut.csr.mip[31:0]
+(25)cpu_tb.dut.csr.mip[31:0]
+(26)cpu_tb.dut.csr.mip[31:0]
+(27)cpu_tb.dut.csr.mip[31:0]
+(28)cpu_tb.dut.csr.mip[31:0]
+(29)cpu_tb.dut.csr.mip[31:0]
+(30)cpu_tb.dut.csr.mip[31:0]
+(31)cpu_tb.dut.csr.mip[31:0]
+@1401200
+-group_end
+@28
+cpu_tb.dut.csr.mie[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

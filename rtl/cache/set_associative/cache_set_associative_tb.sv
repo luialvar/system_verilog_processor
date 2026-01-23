@@ -103,6 +103,8 @@ module cache_set_associative_tb();
       #period;
       reset = 0;
 
+      //Todo: this testbench is missing bunch of tests when alternating between i and d read, from different locations.
+
       //TEST_CASES            addr        datain        ex_dataout    write busy  valid iread
       test_vectors.push_back({24'h000000, 32'h00000000, 32'h00000000, 1'b0, 1'b0, 1'b1, 1'b0}); //Test 0: read from addr 0
       test_vectors.push_back({24'h000004, 32'h00000000, 32'h00000001, 1'b0, 1'b0, 1'b1, 1'b0}); //Test 1: read from addr 4, should be cached
@@ -165,6 +167,10 @@ module cache_set_associative_tb();
           idle = 1'b1;
 
           #period;
+          //reset = 1'b1;
+          //#period 
+          //reset = 1'b0;
+          //#(20*period);
         end
 
       $display("\033[32mTestbench finished running\033[0m");
