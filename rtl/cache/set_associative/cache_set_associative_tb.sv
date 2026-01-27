@@ -147,9 +147,9 @@ module cache_set_associative_tb();
           idle = 1'b0;
 
           k = 0;
-          while(dut.busy && k <= 2000) begin
+          while(dut.busy && k <= 4000) begin
             #period;
-            if( k++ == 2000) begin
+            if( k++ == 4000) begin
               $error("\033[31mTest %0d failed: Cache-operation exceeded timeout!\033[0m", i);
             end
           end

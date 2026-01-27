@@ -18,8 +18,8 @@ _start:
     csrw mstatus, x0  # also possible if you don't want to remember register address
 
     # load stack pointer address into sp
-    li sp, 0x00ffffff
-    #li sp, 0x00fffffc
+    li sp, 0x00fffffc
+    #li sp, 0x00ffffff  # misaligned
 
     # load base address of isr jump table
     # external interrupts will be used to update the current walking direction

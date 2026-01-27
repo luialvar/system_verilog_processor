@@ -45,12 +45,12 @@ logic [31:0] sram_data_out;
 logic [23:0] sram_addr;
 
 logic [32:0] i_cache[2**10];//[128][8], 2^11 2^3;  //4KiB 
-logic [tag_bits:0] i_control[2**7];
+logic [tag_bits:0] i_tags[2**7];
 
 logic [32:0] d_cache[2**10];//[128][8], 2^11 2^3;   //4KiB
-logic [tag_bits:0] d_control[2**7];
+logic [tag_bits:0] d_tags[2**7];
 
-logic [tag_bits:0] current_control;
+logic [tag_bits:0] current_tag;
 
 states state;
 
@@ -93,7 +93,7 @@ always_ff @( posedge clk ) begin
                 if(misaligned && iread) state <= FAULT; 
                 else if(write) state <= WRITE_AWAIT;
                 else begin
-                    if(current_control[tag_bits] & current_control[tag_bits - 1:0] == addr[23:index_end + 1]) begin
+                    if(current_tag[tag_bits] & current_tag[tag_bits - 1:0] == addr[23:index_end + 1]) begin
                         if(misaligned_line) begin //missaligned and next line might has to be loaded
                            // $display("Misaligned line");
                             state <= CH_ADDR;
@@ -129,10 +129,10 @@ always_ff @( posedge clk ) begin
 
                         if(iread) begin
                             i_cache[{load_addr[index_end:index_start], count}] <= sram_data_out;
-                            i_control[load_addr[index_end:index_start]] <= {1'b1, load_addr[23:index_end + 1]};   //set valid and tag
+                            i_tags[load_addr[index_end:index_start]] <= {1'b1, load_addr[23:index_end + 1]};   //set valid and tag
                         end else begin 
                             d_cache[{load_addr[index_end:index_start], count}] <= sram_data_out;
-                            d_control[load_addr[index_end:index_start]] <= {1'b1, load_addr[23:index_end + 1]};   //set valid and tag    
+                            d_tags[load_addr[index_end:index_start]] <= {1'b1, load_addr[23:index_end + 1]};   //set valid and tag    
                         end
                     end
                     else state <= FAULT;
@@ -161,7 +161,7 @@ always_ff @( posedge clk ) begin
                 end
             end
             CH_ADDR: begin
-                if(d_control[load_addr[index_end:index_start]][tag_bits] & d_control[load_addr[index_end:index_start]][tag_bits - 1:0] == load_addr[23:index_end + 1]) 
+                if(d_tags[load_addr[index_end:index_start]][tag_bits] & d_tags[load_addr[index_end:index_start]][tag_bits - 1:0] == load_addr[23:index_end + 1]) 
                     state <= FINISH_A;
                 else 
                     state <= LOAD_AWAIT;
@@ -172,10 +172,10 @@ always_ff @( posedge clk ) begin
 
                     //write word to cache if hit
                     //entry valid    and    tag         matches address tag
-                    if(i_control[addr[index_end:index_start]][tag_bits] & i_control[addr[index_end:index_start]][tag_bits - 1:0] == addr[23:index_end+1]) begin
+                    if(i_tags[addr[index_end:index_start]][tag_bits] & i_tags[addr[index_end:index_start]][tag_bits - 1:0] == addr[23:index_end+1]) begin
                         i_cache[addr[index_end:offset_start]] <= data_in;
                     end
-                    if(d_control[addr[index_end:index_start]][tag_bits] & d_control[addr[index_end:index_start]][tag_bits - 1:0] == addr[23:index_end+1]) begin
+                    if(d_tags[addr[index_end:index_start]][tag_bits] & d_tags[addr[index_end:index_start]][tag_bits - 1:0] == addr[23:index_end+1]) begin
                         d_cache[addr[index_end:offset_start]] <= data_in;
                     end
                 end else begin 
@@ -241,8 +241,8 @@ always_ff @( posedge clk) begin
 end 
 
 always_comb begin
-    if(iread) current_control = i_control[addr[index_end:index_start]];
-    else current_control = d_control[addr[index_end:index_start]];
+    if(iread) current_tag = i_tags[addr[index_end:index_start]];
+    else current_tag = d_tags[addr[index_end:index_start]];
 
     if(reset)
         data_out = 32'b0;

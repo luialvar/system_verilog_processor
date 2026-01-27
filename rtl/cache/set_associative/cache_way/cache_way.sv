@@ -1,7 +1,7 @@
 module cache_way #(
-    parameter set_bits = 4,
+    parameter set_bits = 4,  //4: 668, 4;   5: 1198, 4;   6: 2008, 8
     parameter tag_bits = 15,
-    parameter offset_bits = 3
+    parameter offset_bits = 3  //4 should also be possible without changing the number of SB_RAM40_4K modules
 )(
     input logic clk,
     input logic reset,
@@ -18,17 +18,18 @@ module cache_way #(
 );
 
 logic [31:0] i_lines [2**(set_bits + offset_bits)];
-//logic [tag_bits - 1:0] i_tags [2**set_bits];
 logic [(2**set_bits - 1):0] i_valids;
 
 logic [31:0] d_lines [2**(set_bits + offset_bits)];
-//logic [tag_bits - 1:0] d_tags [2**set_bits];
 logic [(2**set_bits - 1):0] d_valids;
+//logic [tag_bits - 1:0] i_tags [2**set_bits];
+//logic [tag_bits - 1:0] d_tags [2**set_bits];
 
 logic [tag_bits - 1:0] tags [2**(set_bits + 1)];
 
 logic [31:0] i_data;
 logic [31:0] d_data;
+
 
 logic i_hit;
 logic d_hit;

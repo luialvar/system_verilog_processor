@@ -1,8 +1,8 @@
 /*
 * This is somewhat of a mess
 * module replaces spi_master
-* address: [23 .tag. 9|8 .set. 5|4 .offset. 2|1 .bytes. 0]
-*          [   15     |     4   |     3      |     2     ]
+* address: [23 .tag. 10|9 .set. 6|5 .offset. 2|1 .bytes. 0]
+*          [   14      |     4   |     4      |     2     ]
 *
 * cache line: [272 .valid. 272|271 .tag. 256|255 .data. 0]
 */
@@ -27,19 +27,20 @@ module cache_set_associative (
     input logic iread,   //instruction-word load, only caching iwords
     input logic idle     //true, when cache is not in use
 );
-localparam replacement_policy = 1;
+localparam replacement_policy = 1;  //select replacement policy
 
-localparam set_end = 8;
-localparam set_start = 5;
-localparam offset_end = 4;
+
+localparam offset_bits  = 3;   //4 better than 3 here?
+localparam sets         = 16;
+localparam set_bits     = 4;
+localparam ways         = 4;
+localparam way_bits     = 2;
+
 localparam offset_start = 2;
-
-localparam tag_bits = 15;
-
-localparam ways = 4;
-localparam way_bits = 2;
-localparam sets = 16;
-localparam set_bits = 4;
+localparam offset_end   = offset_start + offset_bits - 1;
+localparam set_start    = offset_end + 1;
+localparam set_end      = set_start + set_bits - 1;
+localparam tag_bits     = 24 - set_end - 1;
 
 //typedef logic [31:0] data [8];
 //             0     1        2           3     4           5            6      7      8
@@ -51,8 +52,8 @@ logic [23:0] sram_addr;
 
 states state;
 
-logic [2:0] offset; 
-logic [2:0] count; //variable for loading 8 words
+logic [offset_bits - 1:0] offset; 
+logic [offset_bits - 1:0] count; //variable for loading 16 words
 
 logic unaligned;
 
@@ -76,45 +77,11 @@ logic cache_replace_flag; // high when cache line is replaced
 logic i_hit_flag = 0;
 logic d_hit_flag = 0;
 logic [way_bits - 1:0] way_replace;
-logic [way_bits - 1:0] i_way_replace;
-logic [way_bits - 1:0] d_way_replace;
-logic [way_bits - 1:0] way_hit_replace = 0;
+logic [way_bits - 1:0] i_way_replace;           // replacement policy output
+logic [way_bits - 1:0] d_way_replace;           // replacement policy output
+logic [way_bits - 1:0] way_hit_replace = 0;     // indicate the way that was hit or the way that was replaced to update the replacement policy
 logic i_rep_finished;
 logic d_rep_finished;
-
-plru_m #(
-//fifo #(
-    .ways(ways),
-    .way_bits(way_bits),
-    .sets(sets),
-    .set_bits(set_bits)
-) i_rep (
-    .clk(clk),
-    .reset(reset),
-    .hit(i_hit_flag),            //set high to mark way "way_hit" as hit
-    .replace(cache_replace_flag),
-    .set(addr[set_end:set_start]),
-    .way_hit(way_hit_replace),
-    .way_replace(i_way_replace), //output
-    .finished(i_rep_finished)     //output
-);
-
-plru_m #(
-//fifo #(
-    .ways(ways),
-    .way_bits(way_bits),
-    .sets(sets),
-    .set_bits(set_bits)
-) d_rep (
-    .clk(clk),
-    .reset(reset),
-    .hit(d_hit_flag),            //set high to mark way "way_hit" as hit
-    .replace(cache_replace_flag),
-    .set(addr[set_end:set_start]),
-    .way_hit(way_hit_replace),
-    .way_replace(d_way_replace), //output
-    .finished(d_rep_finished)     //output
-);
 
 spi_master sram (
      .clk(clk),
@@ -135,7 +102,7 @@ spi_master sram (
 always_ff @( posedge clk ) begin
     if(idle || reset) begin
         state <= IDLE;
-        count <= 3'b0;
+        count <= 0;
     end else begin
         case(state)
             IDLE: begin
@@ -153,7 +120,7 @@ always_ff @( posedge clk ) begin
                 end else begin                    
                     //load line
                     state <= LOAD_AWAIT;
-                    count <= 3'b111;
+                    count <= {(offset_bits){1'b1}};
                 end   
             end
             LOAD_AWAIT: begin
@@ -324,7 +291,7 @@ generate
         cache_way #(
             .set_bits(set_bits),
             .tag_bits(tag_bits),
-            .offset_bits(offset_end - offset_start + 1)
+            .offset_bits(offset_bits)
         ) way (
             .clk(clk),
             .reset(reset),
@@ -341,6 +308,78 @@ generate
         );
     end
 endgenerate
+
+
+// generate replacement policy, 1 - plrum, 0 - fifo
+generate
+    if(replacement_policy) begin
+        plru_m #(
+            .ways(ways),
+            .way_bits(way_bits),
+            .sets(sets),
+            .set_bits(set_bits)
+        ) i_rep (
+            .clk(clk),
+            .reset(reset),
+            .hit(i_hit_flag),            //set high to mark way "way_hit" as hit
+            .replace(cache_replace_flag),
+            .set(addr[set_end:set_start]),
+            .way_hit(way_hit_replace),
+            .way_replace(i_way_replace), //output
+            .finished(i_rep_finished)     //output
+        );
+
+        plru_m #(
+            .ways(ways),
+            .way_bits(way_bits),
+            .sets(sets),
+            .set_bits(set_bits)
+        ) d_rep (
+            .clk(clk),
+            .reset(reset),
+            .hit(d_hit_flag),            //set high to mark way "way_hit" as hit
+            .replace(cache_replace_flag),
+            .set(addr[set_end:set_start]),
+            .way_hit(way_hit_replace),
+            .way_replace(d_way_replace), //output
+            .finished(d_rep_finished)     //output
+        );
+    end else begin
+        fifo #(
+            .ways(ways),
+            .way_bits(way_bits),
+            .sets(sets),
+            .set_bits(set_bits)
+        ) i_rep (
+            .clk(clk),
+            .reset(reset),
+            .hit(i_hit_flag),            //set high to mark way "way_hit" as hit
+            .replace(cache_replace_flag),
+            .set(addr[set_end:set_start]),
+            .way_hit(way_hit_replace),
+            .way_replace(i_way_replace), //output
+            .finished(i_rep_finished)     //output
+        );
+
+        fifo #(
+            .ways(ways),
+            .way_bits(way_bits),
+            .sets(sets),
+            .set_bits(set_bits)
+        ) d_rep (
+            .clk(clk),
+            .reset(reset),
+            .hit(d_hit_flag),            //set high to mark way "way_hit" as hit
+            .replace(cache_replace_flag),
+            .set(addr[set_end:set_start]),
+            .way_hit(way_hit_replace),
+            .way_replace(d_way_replace), //output
+            .finished(d_rep_finished)     //output
+        );
+    end
+endgenerate
+
+
 
 endmodule
 
