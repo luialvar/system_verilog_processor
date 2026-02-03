@@ -25,6 +25,7 @@ logic [31:0] rd_div_q, rd_div_d;
 logic [5:0] counter_q, counter_d;
 logic signed_q, signed_d;
 logic isrem_q, isrem_d;
+logic overflow;
 
 enum {NO_DIV, INIT_DIV, START, FIN_A, FIN} state_q, state_d;
 
@@ -72,9 +73,24 @@ always_comb begin
             end
         end
         INIT_DIV:   begin
+            overflow = is_signed && a == 32'h8000_0000 && b == 32'hFFFF_FFFF;
             if(b == 32'b0) begin
-                rd_div_d = 32'b1;
-                state_d = NO_DIV;
+                if (is_rem) begin
+                    rd_div_d = a;
+                    state_d = FIN;
+                end
+                else begin
+                    rd_div_d = 32'hFFFF_FFFF;
+                    state_d = FIN;
+                end
+            end
+            else if(is_rem == 0 && overflow) begin
+                rd_div_d = a;
+                state_d = FIN;
+            end
+            else if(is_rem && overflow) begin
+                rd_div_d = 0;
+                state_d = FIN;
             end
             else begin
                 isrem_d = is_rem;
@@ -174,6 +190,7 @@ always_comb begin
                             start_div = 1;
                             is_signed = 0;
                             is_rem = 0;
+                            alu_busy = 1;
                         end
                         default: illegal_instruction = 1;
                     endcase
@@ -185,6 +202,7 @@ always_comb begin
                             start_div = 1;
                             is_signed = 1;
                             is_rem = 1;
+                            alu_busy = 1;
                         end
                         default: illegal_instruction = 1;
                     endcase
@@ -196,6 +214,7 @@ always_comb begin
                             start_div = 1;
                             is_signed = 0;
                             is_rem = 1;
+                            alu_busy = 1;
                         end
                         default: illegal_instruction = 1;
                     endcase
