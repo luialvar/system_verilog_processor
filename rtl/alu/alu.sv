@@ -65,6 +65,7 @@ always_comb begin
     isrem_d = isrem_q;
     rd_div_d = rd_div_q;
     rd_div = 32'b0;
+    overflow = 0;
     
     case(state_q)
         NO_DIV: begin
@@ -127,7 +128,6 @@ always_comb begin
         end
         FIN: begin
             state_d = NO_DIV;
-            alu_busy = 0;
         end
     endcase
 end
@@ -138,6 +138,7 @@ always_comb begin
     start_div = 0;
     is_signed = 0;
     is_rem = 0;
+    alu_busy = 0;
     case(instruction[6:0])
         7'b0110011: begin // R-type
             case(instruction[9:7]) // func3
@@ -177,7 +178,8 @@ always_comb begin
                             start_div = 1;
                             is_signed = 1;
                             is_rem = 0;
-                            alu_busy = 1;
+                            if (state_q == FIN) alu_busy = 0;
+                            else alu_busy = 1;
                         end
                         default: illegal_instruction = 1;
                     endcase
@@ -190,7 +192,8 @@ always_comb begin
                             start_div = 1;
                             is_signed = 0;
                             is_rem = 0;
-                            alu_busy = 1;
+                            if (state_q == FIN) alu_busy = 0;
+                            else alu_busy = 1;
                         end
                         default: illegal_instruction = 1;
                     endcase
@@ -202,7 +205,8 @@ always_comb begin
                             start_div = 1;
                             is_signed = 1;
                             is_rem = 1;
-                            alu_busy = 1;
+                            if (state_q == FIN) alu_busy = 0;
+                            else alu_busy = 1;
                         end
                         default: illegal_instruction = 1;
                     endcase
@@ -214,7 +218,8 @@ always_comb begin
                             start_div = 1;
                             is_signed = 0;
                             is_rem = 1;
-                            alu_busy = 1;
+                            if (state_q == FIN) alu_busy = 0;
+                            else alu_busy = 1;
                         end
                         default: illegal_instruction = 1;
                     endcase

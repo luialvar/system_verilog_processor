@@ -82,6 +82,7 @@ module control (
         mret = 0;
         csr_write = 0;
         jump_to_isr = 0;
+        reset_alu = 0;
         case (state_q)
             RST     :   state_d = FE_A;
             FE_A    :
