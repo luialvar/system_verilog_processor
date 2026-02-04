@@ -1,0 +1,11 @@
+make: Nothing to be done for 'synthesis'.
+yosys -p 'synth_ice40 -dsp -spram -top cpu; write_json cpu.json;' cpu.sv ../csr/csr.sv ../alu/alu.sv ../control/control.sv ../imm_gen/imm_gen.sv ../pc_unit/pc_unit.sv ../regs/regs.sv memory.sv spi_master.sv i2c_master.sv uart_tx.v
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.58+86 (git sha1 8bc63ef6d, clang++ 18.1.8 -fPIC -O3)
+
+-- Parsing `cpu.sv' using frontend ` -sv' --

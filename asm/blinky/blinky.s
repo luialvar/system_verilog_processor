@@ -13,7 +13,7 @@ _start:
     sw x0, 3(x13) # Set mtimecmph 0
 
     li x1, 12000000
-    # li x1, 0x1000 #better suited for simulation
+    li x1, 0x1000 #better suited for simulation
     sw x1, 2(x13) # Set mtimecmp 0x1000
 
     li x13, 128

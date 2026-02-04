@@ -66,6 +66,7 @@ logic        mem_ce;        //o
 logic jump_to_isr;          //o
 logic mret;                 //o
 logic csr_write;            //o
+logic ireadflag;            //o added
 
 //csr:
 logic interrupt_pending;    //o
@@ -110,7 +111,8 @@ alu alu (
     .alu_busy(alu_busy)
     );
 
-memory memory (
+//memory_cache memory (
+memory_cache_set memory (
     .clk(clk),            
     .reset(inv_reset), 
     .ce(mem_ce),
@@ -130,7 +132,8 @@ memory memory (
     .gpio_in(gpio_in),
     .gpio_out(gpio_out),
     .intr_timer(intr_timer),
-    .load_access_fault(load_access_fault)
+    .load_access_fault(load_access_fault),
+    .iread(ireadflag)
     );
     
 control control (
@@ -149,10 +152,11 @@ control control (
     .mem_ce(mem_ce),
     .reset_alu(reset_alu),
     .interrupt_pending(interrupt_pending),
-    .exceptions(exceptions), //exceptions
+    .exceptions(exceptions),  //exceptions
     .jump_to_isr(jump_to_isr),
     .mret(mret),
-    .csr_write(csr_write)
+    .csr_write(csr_write),
+    .ireadflag(ireadflag)
     );
 
 csr csr (
