@@ -82,6 +82,7 @@ always_comb begin
     csr_write = 0;
     jump_to_isr = 0;
     reset_alu = 0;
+    ireadflag = 1'b0;
     case (state_q)
         RST     :   state_d = FE_A;
         FE_A    :
@@ -96,6 +97,7 @@ always_comb begin
                 else begin
                     state_d = state_q;
                 end
+                ireadflag = 1'b1;
             end
         FE      :
             begin
@@ -110,6 +112,7 @@ always_comb begin
                 end
                 mem_ce = 0;
                 reset_alu = 1;
+                ireadflag = 1'b1;
             end
         ID      :   
             begin
