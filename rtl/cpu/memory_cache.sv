@@ -103,9 +103,9 @@ module memory_cache (
   logic sclk_flag;
 
   //spi_master sram_master (
-  id_cache_direct_mapped_large_misaligned sram_master(
+  id_c_large_misaligned sram_master(
       .clk(clk),
-      .reset(sram_reset),
+      .reset(reset),
       .si(si),
       .so(so),
       .sclk(sclk),
@@ -115,8 +115,9 @@ module memory_cache (
       .data_out(sram_dataout),
       .write(memwrite_reg),
       .busy(sram_busy),
-      .valid(sram_valid)
-      ,.iread(iread)     //added, remove for tests with spi_master
+      .valid(sram_valid),
+      .iread(iread),     //added, remove for tests with spi_master
+      .idle(sram_reset)
   );
 
   i2c_master i2c_master (

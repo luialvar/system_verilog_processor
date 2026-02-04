@@ -22,8 +22,8 @@ module cpu_tb ();
         //.INIT_FILE("./test_memory.txt")
         //.INIT_FILE("../../asm/exceptions_test/exceptions_test.txt")
         //.INIT_FILE("../../asm/lwsw/lwsw.txt")
-        .INIT_FILE("../../asm/threed/main.txt")
-        //.INIT_FILE("../../asm/blinky/blinky.txt")
+        //.INIT_FILE("../../asm/threed/main.txt")
+        .INIT_FILE("../../asm/cache_test/cache_test_1.txt")
     ) sram (
         .sclk(sclk),
         .reset(reset),
@@ -78,14 +78,14 @@ module cpu_tb ();
         #20;
         reset = 0;
         rst_n = 1;
-        #20000
+        #20000;
         //#100000;
         //#1000000; //looong simulation
-        #500000;
+        //#500000;
         //rst_n = 1'b0;  // reset during execution
         //#10;
         //rst_n = 1'b1;
-        #500000;
+       // #500000;
         $display("\033[32mTestbench finished running! Verify with the waveform\033[0m");
         $finish;
     end

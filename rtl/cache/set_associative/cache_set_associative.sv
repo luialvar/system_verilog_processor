@@ -30,7 +30,7 @@ module cache_set_associative (
 localparam replacement_policy = 1;  //select replacement policy
 
 
-localparam offset_bits  = 3;   //4 better than 3 here?
+localparam offset_bits  = 4;   //4 better than 3 here?
 localparam sets         = 16;
 localparam set_bits     = 4;
 localparam ways         = 4;
@@ -325,7 +325,7 @@ generate
             .replace(cache_replace_flag),
             .set(addr[set_end:set_start]),
             .way_hit(way_hit_replace),
-            .way_replace(i_way_replace), //output
+            .way_replace(i_way_replace),  //output
             .finished(i_rep_finished)     //output
         );
 
@@ -341,7 +341,7 @@ generate
             .replace(cache_replace_flag),
             .set(addr[set_end:set_start]),
             .way_hit(way_hit_replace),
-            .way_replace(d_way_replace), //output
+            .way_replace(d_way_replace),  //output
             .finished(d_rep_finished)     //output
         );
     end else begin
@@ -357,7 +357,7 @@ generate
             .replace(cache_replace_flag),
             .set(addr[set_end:set_start]),
             .way_hit(way_hit_replace),
-            .way_replace(i_way_replace), //output
+            .way_replace(i_way_replace),  //output
             .finished(i_rep_finished)     //output
         );
 
@@ -373,7 +373,7 @@ generate
             .replace(cache_replace_flag),
             .set(addr[set_end:set_start]),
             .way_hit(way_hit_replace),
-            .way_replace(d_way_replace), //output
+            .way_replace(d_way_replace),  //output
             .finished(d_rep_finished)     //output
         );
     end

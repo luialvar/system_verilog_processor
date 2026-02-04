@@ -103,7 +103,7 @@ module memory_cache_set (
   logic sclk_flag;
 
   //spi_master sram_master (
-  cache_set_associative sram_master(
+  cache_set_associative cache(
       .clk(clk),
       .reset(reset), //original has sram_reset here
       .si(si),

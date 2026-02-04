@@ -27,6 +27,10 @@ module id_cache_direct_mapped_large_misaligned (
 
     input logic iread   //instruction-word load, only caching iwords
 );
+//use sbram40K as storage for valid/tags?
+//two spram blocks for i/d cache each.
+//separate modules from state machine, only use control bits to drive them.
+
 
 localparam index_end = 11;
 localparam index_start = 5;
