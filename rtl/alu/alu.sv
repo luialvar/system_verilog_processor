@@ -200,7 +200,7 @@ always_comb begin
                 end
                 3'b110: begin
                     case(instruction[16:10])
-                        7'b0100000: rd_alu = a | b; // OR
+                        7'b0000000: rd_alu = a | b; // OR
                         7'b0000001: begin       // REM
                             start_div = 1;
                             is_signed = 1;
@@ -213,7 +213,7 @@ always_comb begin
                 end
                 3'b111: begin
                     case(instruction[16:10])
-                        7'b0100000: rd_alu = a & b; // AND
+                        7'b0000000: rd_alu = a & b; // AND
                         7'b0000001: begin       // REMU
                             start_div = 1;
                             is_signed = 0;
