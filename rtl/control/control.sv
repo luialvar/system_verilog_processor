@@ -88,11 +88,11 @@ always_comb begin
         FE_A    :
             begin
                 mem_ce = 0;
-                if (mem_busy) begin
-                    state_d = FE;
-                end
-                else if (exceptions[0] | exceptions[2]) begin
+                if (exceptions[0] | exceptions[2]) begin
                     state_d = INTR;
+                end
+                else if (mem_busy) begin
+                    state_d = FE;
                 end
                 else begin
                     state_d = state_q;

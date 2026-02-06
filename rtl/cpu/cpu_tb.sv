@@ -21,8 +21,8 @@ module cpu_tb ();
     sram_sim #(
         //.INIT_FILE("./M_Extension_test.txt")
         //.INIT_FILE("../../asm/exceptions_test/exceptions_test.txt")
-        //.INIT_FILE("../../asm/lwsw/lwsw.txt")
-        .INIT_FILE("../../asm/threed/main.txt")
+        .INIT_FILE("../../asm/blinky/blinky.txt")
+        //.INIT_FILE("../../asm/threed/main.txt")
         //.INIT_FILE("../../asm/cache_test/cache_test_1.txt")
     ) sram (
         .sclk(sclk),
@@ -44,7 +44,7 @@ module cpu_tb ();
     generate
         genvar i;
         for(i = 0; i < 200; i = i+1) begin
-            assign memory_content[i] = sram.mem[i + 5000]; //changed to i + 5000
+            assign memory_content[i] = sram.mem[i]; //changed to i + 5000
         end
     endgenerate
     /*
