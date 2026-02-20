@@ -26,14 +26,15 @@ module id_c_large_misaligned (
     output logic valid,
 
     input logic iread,   //instruction-word load, only caching iwords
-    input logic idle
+    input logic idle,
+    input logic no_cache_flag
 );
 //use sbram40K as storage for valid/tags?
 //two spram blocks for i/d cache each.
 //separate modules from state machine, only use control bits to drive them.
 
-localparam index_bits = 7;  // 2**14, intex_bits + offset_bits 14 max
-localparam offset_bits = 7;
+localparam index_bits = 4;  // 2**14, intex_bits + offset_bits 14 max (7 index, 7 offset max)
+localparam offset_bits = 4;
 
 localparam offset_start = 2;
 localparam offset_end = offset_start + offset_bits - 1;
@@ -62,6 +63,8 @@ logic misaligned;
 logic misaligned_line;
 logic should_load_next;
 logic next_line_index;
+
+logic should_not_cache;
 
 logic [23 - offset_end:0] ch_index;
 logic [23:0] load_addr;
@@ -110,13 +113,13 @@ always_ff @( posedge clk ) begin
                 else if(write) state <= WRITE_AWAIT;
                 else state <= COMPARE;
 
-                if(misaligned_line) begin
+                if(misaligned_line && ~should_not_cache) begin
                     next_line_index <= 1'b1;
                 end
             end
             COMPARE: begin
                 if(hit) begin
-                    if(misaligned_line) begin //missaligned and next line might has to be loaded
+                    if(misaligned_line && ~should_not_cache) begin //missaligned and next line might has to be loaded
                             state <= CH_ADDR;
                             should_load_next <= 1'b0;
 
@@ -126,10 +129,13 @@ always_ff @( posedge clk ) begin
 
                 end else begin
                     state <= LOAD_AWAIT;
-                    should_load_next <= misaligned;
+                    should_load_next <= misaligned && ~should_not_cache;
                     next_line_index <= 1'b0;
                 end
-                count <= {(offset_bits){1'b1}};
+                if (should_not_cache)
+                    count <= {(offset_bits){1'b0}};
+                else 
+                    count <= {(offset_bits){1'b1}};
             end
             LOAD_AWAIT: begin
                 // load offset consecutive words, beginning by address addr (ignoring offset)
@@ -185,7 +191,7 @@ always_ff @( posedge clk ) begin
                     state <= FINISH_A;
             end
             FINISH_A: begin
-                if(misaligned) begin
+                if(misaligned && ~should_not_cache) begin
                     state <= FINISH_B;
                     $display("put %h in lower combined", d_data_out);
                     combined[31:0] <= d_data_out;
@@ -242,7 +248,8 @@ always_comb begin
         LOAD: begin
             sram_reset = 1'b0;
             if(sram_valid && !sram_busy) begin
-                write_enable = {~iread, iread};
+                if (~should_not_cache)
+                    write_enable = {~iread, iread};
                 load_addr[offset_end:offset_start] = count;
                 set_valid = 1'b1;
                 data_in_select = 1'b1; //load from sram
@@ -272,8 +279,8 @@ always_comb begin
         end
         FINISH_A: begin
             // already valid in this state, if we don't have to load second part
-            valid = !misaligned;
-            busy = misaligned;
+            valid = !misaligned || should_not_cache;
+            busy = misaligned && ~should_not_cache;
             if(misaligned) begin
                 read_enable = 2'b11;
                 load_addr[23:offset_start] = addr[23:offset_start] + 1;
@@ -292,7 +299,7 @@ always_comb begin
     endcase
 end
 
-
+assign should_not_cache = no_cache_flag && ~iread;
 assign misaligned = addr[1] || addr[0];
 assign misaligned_line = addr[4] && addr[3] && addr[2] && misaligned;
 
@@ -306,7 +313,9 @@ always_comb begin
         data_out = 32'b0;
     else if(iread)
         data_out = i_data_out; 
-    else begin
+    else if (should_not_cache) begin
+        data_out = sram_data_out;
+    end else begin
         if(misaligned) begin
             data_out = combined >> {addr[1:0], 3'b0};
         end else 
@@ -314,7 +323,7 @@ always_comb begin
     end
 
     //sram_addr changes when loading words into cache
-    sram_addr = write ? addr : {load_addr[23:index_start], count, 2'b0};
+    sram_addr = (write || should_not_cache) ? addr : {load_addr[23:index_start], count, 2'b0};
 end
 
 cache_module #(

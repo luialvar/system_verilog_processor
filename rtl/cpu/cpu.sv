@@ -67,6 +67,7 @@ logic jump_to_isr;          //o
 logic mret;                 //o
 logic csr_write;            //o
 logic ireadflag;            //o added
+logic ntlflag;              //o added
 
 //csr:
 logic interrupt_pending;    //o
@@ -133,7 +134,8 @@ memory_cache_set memory (
     .gpio_out(gpio_out),
     .intr_timer(intr_timer),
     .load_access_fault(load_access_fault),
-    .iread(ireadflag)
+    .iread(ireadflag),
+    .ntlflag(ntlflag)
     );
     
 control control (
@@ -156,7 +158,8 @@ control control (
     .jump_to_isr(jump_to_isr),
     .mret(mret),
     .csr_write(csr_write),
-    .ireadflag(ireadflag)
+    .ireadflag(ireadflag),
+    .ntlflag(ntlflag)
     );
 
 csr csr (

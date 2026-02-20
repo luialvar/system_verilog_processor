@@ -21,9 +21,9 @@ module cpu_tb ();
     sram_sim #(
         //.INIT_FILE("./M_Extension_test.txt")
         //.INIT_FILE("../../asm/exceptions_test/exceptions_test.txt")
-        .INIT_FILE("../../asm/blinky/blinky.txt")
+        //.INIT_FILE("../../asm/blinky/blinky.txt")
         //.INIT_FILE("../../asm/threed/main.txt")
-        //.INIT_FILE("../../asm/cache_test/cache_test_1.txt")
+        .INIT_FILE("../../asm/cache_test/cache_test_1.txt")
     ) sram (
         .sclk(sclk),
         .reset(reset),

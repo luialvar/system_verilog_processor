@@ -11,19 +11,24 @@ _start:
     li s4, 0x01000002 # Load address of UART
     li sp, 0x00fffffc
 
-    addi a1, x0, 8  
-    addi a2, x0, 8
+    addi a1, x0, 8  # 
+    addi a2, x0, 16
     addi a3, x0, 256
     jal ra, loop_start_1
 
     addi a1, x0, 8  
-    addi a2, x0, 8
+    addi a2, x0, 16
     addi a3, x0, 256
     jal ra, loop_start_2
 
+    addi a1, x0, 8  # 
+    addi a2, x0, 16
+    addi a3, x0, 256
+    jal ra, loop_start_1
+
     j end
     
-
+# slow loop
 loop_start_1:   
     sw ra, 0(sp)
     addi sp, sp, -4
@@ -42,6 +47,7 @@ loop_start_1:
             add t4, t4, t0   # t4 = t4 + j
             nop              # included because offset is added in second run to access different set
             slli t4, t4, 2   # t4 * 4
+            add x0, x0, x5   # Zihintntl NTL.ALL, do not cache next load
             lw t5, 0(t4)
 
             addi t1, t1, 1  # incr i
@@ -79,6 +85,7 @@ loop_start_2:
             add t4, t4, t1   # t4 = t4 + 256
             addi t4, t4, 32  # set = 0
             slli t4, t4, 2   # t4 * 4
+            //add x0, x0, x5   # Zihintntl NTL.ALL, do not cache next load
             lw t5, 0(t4)
 
             addi t1, t1, 1  # incr i

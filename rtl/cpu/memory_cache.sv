@@ -45,7 +45,8 @@ module memory_cache (
     output logic intr_timer,
     output logic load_access_fault,
 
-    input logic iread  //read command issued for instruction
+    input logic iread,  //read command issued for instruction
+    input logic ntlflag
 );
 
   localparam int SRAM_LOW_ADDR = 32'h0000000;
@@ -117,7 +118,8 @@ module memory_cache (
       .busy(sram_busy),
       .valid(sram_valid),
       .iread(iread),     //added, remove for tests with spi_master
-      .idle(sram_reset)
+      .idle(sram_reset),
+      .no_cache_flag(ntlflag)
   );
 
   i2c_master i2c_master (

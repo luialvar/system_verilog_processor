@@ -25,12 +25,13 @@ module cache_set_associative (
     output logic valid,
 
     input logic iread,   //instruction-word load, only caching iwords
-    input logic idle     //true, when cache is not in use
+    input logic idle,    //true, when cache is not in use
+    input logic no_cache_flag  // hint telling the cache not to prefetch/cache the current d_read on miss
 );
 localparam replacement_policy = 1;  //select replacement policy
 
 
-localparam offset_bits  = 4;   //4 better than 3 here?
+localparam offset_bits  = 4;   //4 better than 3 here? 4 * 16 * 4 * 32 bit per module, 
 localparam sets         = 16;
 localparam set_bits     = 4;
 localparam ways         = 4;
@@ -56,6 +57,7 @@ logic [offset_bits - 1:0] offset;
 logic [offset_bits - 1:0] count; //variable for loading 16 words
 
 logic unaligned;
+logic should_cache; // indicating whether fetched data on a miss should be written to cache
 
 // cache_way
 logic [31:0] cache_data_in;
@@ -120,11 +122,14 @@ always_ff @( posedge clk ) begin
                 end else begin                    
                     //load line
                     state <= LOAD_AWAIT;
-                    count <= {(offset_bits){1'b1}};
+                    if(should_cache)
+                        count <= {(offset_bits){1'b1}};
+                    else // don't do prefetch:
+                        count <= {(offset_bits){1'b0}};
                 end   
             end
             LOAD_AWAIT: begin
-                //load 8 consecutive words, beginning by address addr (ignoring offset)
+                //load <count> consecutive words, beginning by address addr (ignoring offset)
                 if(sram_busy) state <= LOAD;
                 else state <= LOAD_AWAIT;  //wait for sram to respond
             end
@@ -212,15 +217,18 @@ always_comb begin
         end
         LOAD: begin
             if(!sram_busy && sram_valid) begin
-                //overwrite data in the way that should be replaced next and update tag/valid
-                cache_write_mode = 2'b01;
-                enable[way_replace] = {~iread, iread};
+
+                if(should_cache) begin // don't always want to store d_read
+                    //overwrite data in the way that should be replaced next and update tag/valid
+                    cache_write_mode = 2'b01;
+                    enable[way_replace] = {~iread, iread};
+                end
             end
             offset = count;
             sram_reset = 1'b0;
         end
         LOAD_RESET: begin
-            if(count == 0) begin
+            if(count == 0 && should_cache) begin
                 //update replacement policy
                 valid_flag = 1'b1;  //set valid bit in cache line to true
                 cache_write_mode = 2'b10;
@@ -257,12 +265,21 @@ always_comb begin
     endcase
 end
 
-assign data_out = reset ? 32'b0 : data_hit;
+assign should_cache = iread || ~no_cache_flag;
 assign unaligned = addr[0] || addr[1];
-assign sram_addr = write ? addr : {addr[23:set_start], offset, 2'b0}; //sram_addr changes when loading words into cache
+assign sram_addr = (write || ~should_cache) ? addr : {addr[23:set_start], offset, 2'b0}; //sram_addr changes when loading words into cache
 assign hit = (i_hit && iread) || (d_hit && ~iread);
 assign way_replace = iread ? i_way_replace : d_way_replace;   //assign the next way that should be replaced
 assign cache_data_in = write ? data_in : sram_data_out; //cache uses data_in on write, otherwise we want to write the data comming from the sram to the cache
+
+//assign data_out = reset ? 32'b0 : data_hit;
+always_comb begin
+    if(reset)
+        data_out = 32'b0;
+    else begin
+        data_out = should_cache ? data_hit : sram_data_out;
+    end
+end
 
 //determine the way that was hit and store the word
 always_comb begin

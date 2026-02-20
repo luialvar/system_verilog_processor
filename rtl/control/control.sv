@@ -21,22 +21,48 @@ module control (
     output logic mret,
     output logic csr_write,
 
-    output logic ireadflag  // added, iread indicates if cpu is currently accessing the memory to fetch an instruction
+    output logic ireadflag,  // added, iread indicates if cpu is currently accessing the memory to fetch an instruction
+    output logic ntlflag
 );
 
 `include "../constants.sv"
+`include "../ntlconstants.sv"
+
 
 logic muldiv;
+logic ntl_active_d;
+logic ntl_active_q = 0;
+logic ntl_pending_d;
+logic ntl_pending_q = 0;
+
+logic is_ntl_instruction;
 
 enum {RST,FE_A,FE,ID,EX,MEM_A,MEM,WB,INTR} state_d, state_q;
 
 imm_gen imm (.iword(iword), .immediate(immediate));
 
+assign ntlflag = ntl_active_q;
+
+always_comb begin
+    is_ntl_instruction = 1'b0;
+    if (iword[6:0] == OP_RTYPE && iword[14:12] == FUNCT3_ADD && iword[11:7] == X0 && iword[19:15] == X0) begin
+        case (iword[24:20])
+            X2, X3, X4, X5: is_ntl_instruction = 1'b1;
+            default: is_ntl_instruction = 1'b0;
+        endcase
+    end
+end
+
 always_ff @( posedge clk ) begin
-    if(reset) 
+    if(reset) begin
         state_q <= RST;
-    else
+        ntl_active_q <= 1'b0;
+        ntl_pending_q <= 1'b0;
+    end else begin
         state_q <= state_d;
+        ntl_active_q <= ntl_active_d;
+        ntl_pending_q <= ntl_pending_d;
+    end
 end
 
 always_comb begin
@@ -83,6 +109,8 @@ always_comb begin
     jump_to_isr = 0;
     reset_alu = 0;
     ireadflag = 1'b0;
+    ntl_active_d = ntl_active_q;
+    ntl_pending_d = ntl_pending_q;
     case (state_q)
         RST     :   state_d = FE_A;
         FE_A    :
@@ -117,6 +145,15 @@ always_comb begin
         ID      :   
             begin
                 state_d = EX;
+                if (is_ntl_instruction) begin
+                    ntl_active_d = 1'b1;
+                    ntl_pending_d = 1'b1;
+                end else begin
+                    if (ntl_pending_q)
+                        ntl_pending_d = 1'b0;
+                    else 
+                        ntl_active_d = 1'b0;
+                end
             end
         EX      :
             begin
@@ -158,6 +195,8 @@ always_comb begin
             begin
                 state_d = FE_A;
                 jump_to_isr = 1;
+                ntl_active_d = 1'b0;
+                ntl_pending_d = 1'b0;
             end
         default :   
             begin
