@@ -1,93 +1,223 @@
-# Professor Frink
+# SystemVerilog Processor
 
+SystemVerilog and FPGA-based computer architecture project focused on RTL design, simulation, synthesis and hardware implementation.
 
+## About
 
-## Getting started
+This repository contains my work for a digital design / processor architecture project developed in SystemVerilog.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The project is focused on understanding how hardware is described, simulated and synthesized, starting from introductory RTL designs and moving toward processor-related concepts. It includes SystemVerilog modules, Makefile-based build flows, FPGA toolchain files and supporting documentation.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+The main goal is to practice low-level hardware design by working directly with RTL, finite state machines, clocked logic, synthesis tools and FPGA programming.
 
-## Add your files
+## Features
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+- SystemVerilog RTL design
+- Introductory FPGA tasks
+- Traffic light finite state machine example
+- Clock divider module
+- Testbench-based simulation
+- Synthesis with Yosys
+- Place and route with `nextpnr-ice40`
+- Bitstream generation
+- FPGA flashing workflow
+- Pin constraint files
+- udev rules for hardware access
+- CPU and toolchain documentation
 
+## Project Structure
+
+```txt
+.
+├── introductory-task/
+│   ├── jennifer/
+│   │   ├── rtl/
+│   │   │   ├── Makefile.inc
+│   │   │   └── traffic_light/
+│   │   ├── udev/
+│   │   ├── traffic_light.pcf
+│   │   └── traffic_light.sv
+│   │
+│   └── mattes/
+│       ├── rtl/
+│       └── udev/
+│
+├── cpu_manual.pdf
+├── toolchain.pdf
+└── README.md
 ```
-cd existing_repo
-git remote add origin https://gitlab2.informatik.uni-wuerzburg.de/ce/hwp_2526/professor-frink.git
-git branch -M main
-git push -uf origin main
+
+## Main Concepts
+
+### RTL Design
+
+The project uses **SystemVerilog** to describe hardware modules at register-transfer level.
+
+Instead of writing software that runs sequentially on a CPU, the code describes digital circuits that can be simulated and synthesized into FPGA logic.
+
+### Finite State Machines
+
+The introductory traffic light design is based on a finite state machine.
+
+It switches between different states such as:
+
+```txt
+Red
+ ↓
+Red + Yellow
+ ↓
+Green
+ ↓
+Yellow
+ ↓
+Red
 ```
 
-## Integrate with your tools
+This is useful for learning how synchronous hardware changes state on clock edges.
 
-- [ ] [Set up project integrations](https://gitlab2.informatik.uni-wuerzburg.de/ce/hwp_2526/professor-frink/-/settings/integrations)
+### Clock Division
 
-## Collaborate with your team
+The design includes a clock divider module to generate slower timing signals from the FPGA clock.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+This allows visible hardware behavior, such as LEDs changing state at human-observable speeds.
 
-## Test and Deploy
+## Build Flow
 
-Use the built-in continuous integration in GitLab.
+The repository uses a Makefile-based workflow for several hardware design steps:
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```txt
+Simulation
+    ↓
+Synthesis
+    ↓
+Place and Route
+    ↓
+Bitstream Generation
+    ↓
+FPGA Flashing
+```
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Go into one of the RTL task folders:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```bash
+cd introductory-task/jennifer/rtl/traffic_light
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Run simulation:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```bash
+make simulation
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Run synthesis:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```bash
+make synthesis
+```
 
-## License
-For open source projects, say how it is licensed.
+Run place and route:
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+make pr
+```
+
+Generate the FPGA bitstream:
+
+```bash
+make gen_bitstream
+```
+
+Flash the bitstream to the FPGA:
+
+```bash
+make flash_bitstream
+```
+
+Run the full flow:
+
+```bash
+make
+```
+
+Clean generated files:
+
+```bash
+make clean
+```
+
+## Toolchain
+
+The project is intended to be used with an open-source FPGA toolchain.
+
+Main tools used:
+
+- `iverilog`
+- `vvp`
+- `yosys`
+- `nextpnr-ice40`
+- `icepack`
+- `dfu-util`
+- `make`
+
+Depending on the system, additional packages may be required for visualization or hardware access.
+
+## Example Module
+
+One of the introductory modules implements a traffic light controller using:
+
+- Clocked logic
+- Reset handling
+- Enumerated states
+- Combinational next-state logic
+- LED output assignment
+
+This makes it a good first step before moving into more complex processor components.
+
+## Documentation
+
+The repository also includes:
+
+- `cpu_manual.pdf`
+- `toolchain.pdf`
+
+These files document the processor/task requirements and the hardware toolchain setup.
+
+## What I Learned
+
+Through this project I practiced:
+
+- Writing SystemVerilog modules
+- Designing finite state machines
+- Understanding synchronous logic
+- Working with clocks and resets
+- Building RTL projects with Makefiles
+- Simulating hardware designs
+- Synthesizing logic for FPGA targets
+- Generating and flashing bitstreams
+- Using an FPGA-oriented development workflow
+- Thinking in hardware instead of sequential software
+
+## Technologies
+
+- SystemVerilog
+- Verilog toolchain
+- FPGA development
+- RTL design
+- Yosys
+- nextpnr-ice40
+- Icarus Verilog
+- Makefile
+
+## Notes
+
+This repository is part of my learning process in digital design and computer architecture.
+
+The project is especially useful for understanding how low-level hardware blocks are described, tested and prepared to run on real FPGA hardware.
+
+## Author
+
+**Luis Ángel Álvarez Gil**  
+Computer Engineering student  
+University of Málaga / University of Würzburg
