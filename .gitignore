@@ -1,0 +1,28 @@
+.DS_Store
+.idea/
+*.log
+tmp/
+
+# Build and simulation artifacts
+*.asc
+*.bin
+*.elf
+*.fst
+*.hex
+*.json
+*.o
+*.out
+*.vcd
+test_pre
+obj_dir/
+build/
+
+# Local toolchains/installers are intentionally not versioned.
+/install/
+/local-tools/
+*.AppImage
+*.tgz
+
+# Python helpers
+__pycache__/
+*.pyc

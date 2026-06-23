@@ -1,0 +1,29 @@
+        +----------Count including submodules.
+        |
+       18 cpu
+
+        +----------Count including submodules.
+        |
+     2183 wires
+     6327 wire bits
+     2183 public wires
+     6327 public wire bits
+       12 ports
+       26 port bits
+        - memories
+        - memory bits
+        - processes
+       18 cells
+        1   $_TBUF_
+       10   $scopeinfo
+        3   SB_MAC16
+        4   SB_RAM40_4K
+     3393 submodules
+      384   SB_CARRY
+       75   SB_DFF
+      227   SB_DFFE
+      320   SB_DFFESR
+        8   SB_DFFESS
+       61   SB_DFFSR
+        5   SB_DFFSS
+     2313   SB_LUT4
